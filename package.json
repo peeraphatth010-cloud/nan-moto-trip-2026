@@ -1,0 +1,14 @@
+{
+  "name": "nan-moto-trip-2026",
+  "version": "1.0.0",
+  "description": "Nan Motorcycle Roadtrip 2026 - Mobile Web App on Vercel with Google Sheets Database",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

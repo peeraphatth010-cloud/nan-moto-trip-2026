@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#171e19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Nan Moto Trip 2026</title>
+  
+  <!-- Nunito Font 400-900 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            charcoal: '#171e19',
+            vibrantRed: '#ca0013',
+            grayGreen: '#b7c6c2',
+            offWhite: '#eeebe3',
+          },
+          borderRadius: {
+            'main': '40px',
+            'nested': '24px',
+          },
+          boxShadow: {
+            'soft': '0 20px 50px -12px rgba(0, 0, 0, 0.08)',
+            'float': '0 10px 30px -5px rgba(202, 0, 19, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      background-color: #eeebe3;
+      color: #171e19;
+      overflow-x: hidden;
+    }
+    .view-transition {
+      transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+    }
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .glass-dark {
+      background: rgba(23, 30, 25, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="h-full flex flex-col justify-between max-w-md mx-auto relative antialiased selection:bg-vibrantRed selection:text-white">
+
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-40 px-5 pt-4 pb-2 glassmorphism border-b border-grayGreen/20">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-full bg-vibrantRed flex items-center justify-center text-white shadow-md">
+          <i data-lucide="bike" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 block">21 - 25 OCT 2026</span>
+          <h1 class="text-xl font-black text-charcoal leading-none tracking-tight">NAN ROADTRIP</h1>
+        </div>
+      </div>
+      
+      <!-- GPS & Network Status Pill -->
+      <div class="flex items-center gap-1.5 bg-white/90 border border-grayGreen/30 px-3 py-1.5 rounded-full shadow-sm text-xs font-bold">
+        <span id="gpsStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+        <span id="gpsStatusText" class="text-[11px] text-charcoal">GPS รอสัญญาณ</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Content Container -->
+  <main class="flex-1 overflow-y-auto px-4 pt-3 pb-28 no-scrollbar">
+
+    <!-- TAB 1: ITINERARY & LIVE GPS DASHBOARD -->
+    <section id="tabItinerary" class="view-transition space-y-4">
+      
+      <!-- LIVE MOTORCYCLE GPS TARGET CARD (Main Card: 40px radius) -->
+      <div class="bg-charcoal text-white rounded-main p-6 shadow-soft relative overflow-hidden border border-grayGreen/20">
+        <!-- Background Pattern Decor -->
+        <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-vibrantRed/15 blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-36 h-36 rounded-full bg-grayGreen/10 blur-xl pointer-events-none"></div>
+
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-grayGreen/90 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-vibrantRed animate-ping"></span>
+              NEXT MOTORCYCLE STOP • จุดหมายถัดไป
+            </span>
+            <span id="targetDayBadge" class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-white/10 text-offWhite border border-white/10">
+              DAY 1
+            </span>
+          </div>
+
+          <!-- Target Stop Name -->
+          <h2 id="targetName" class="text-2xl font-black text-white leading-tight mb-1 truncate">
+            กำลังโหลดเป้าหมาย...
+          </h2>
+          <p id="targetNote" class="text-xs text-grayGreen line-clamp-1 mb-5">
+            โปรดเปิด GPS เพื่อคำนวณระยะทางและเวลาเดินทาง
+          </p>
+
+          <!-- Metrics Matrix (Nested: 24px radius) -->
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <!-- Distance Metric -->
+            <div class="bg-white/10 border border-grayGreen/20 rounded-nested p-3.5 backdrop-blur-sm">
+              <div class="flex items-center gap-1.5 text-grayGreen mb-0.5">
+                <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">ระยะทาง</span>
+              </div>
+              <div class="flex items-baseline gap-1">
+                <span id="targetDistance" class="text-3xl font-black text-white leading-none">--</span>
+                <span class="text-xs font-bold text-grayGreen">กม.</span>
+              </div>
+            </div>
+
+            <!-- Time by Motorcycle Metric -->
+            <div class="bg-white/10 border border-grayGreen/20 rounded-nested p-3.5 backdrop-blur-sm">
+              <div class="flex items-center gap-1.5 text-grayGreen mb-0.5">
+                <i data-lucide="timer" class="w-3.5 h-3.5"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">เวลารถมอไซค์</span>
+              </div>
+              <div class="flex items-baseline gap-1">
+                <span id="targetEta" class="text-3xl font-black text-vibrantRed leading-none">--</span>
+                <span class="text-xs font-bold text-grayGreen">นาที</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Motorcycle Mode Controls & Actions -->
+          <div class="flex items-center gap-2">
+            <!-- Primary CTA: Google Maps Navigation -->
+            <button id="btnOpenMaps" onclick="openCurrentTargetMap()" class="flex-1 bg-vibrantRed hover:bg-[#a60010] active:scale-[0.98] transition-all text-white py-3.5 px-4 rounded-nested font-extrabold text-sm flex items-center justify-center gap-2 shadow-float">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+              <span>นำทาง Google Maps</span>
+            </button>
+
+            <!-- Secondary CTA: Check-in / Next Stop -->
+            <button id="btnCheckin" onclick="checkinCurrentStop()" class="bg-white/15 hover:bg-white/25 active:scale-[0.98] transition-all border border-grayGreen/30 text-white p-3.5 rounded-nested font-extrabold text-sm flex items-center justify-center" title="เช็คอิน / ข้ามไปจุดถัดไป">
+              <i data-lucide="check" class="w-5 h-5 text-grayGreen"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date Selector Chips (Horizontal Scroll) -->
+      <div class="pt-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 px-1 mb-2 block">เลือกดูแผนรายวัน</span>
+        <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+          <button onclick="filterDay('all')" class="day-chip active whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-charcoal text-white shadow-sm border border-charcoal">
+            ทั้งหมด
+          </button>
+          <button onclick="filterDay('2026-10-21')" class="day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30">
+            21 ต.ค. (กทม.-พิษณุโลก)
+          </button>
+          <button onclick="filterDay('2026-10-22')" class="day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30">
+            22 ต.ค. (เข้าน่าน-ปัว)
+          </button>
+          <button onclick="filterDay('2026-10-23')" class="day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30">
+            23 ต.ค. (ภูคา-เปียงซ้อ-สะปัน)
+          </button>
+          <button onclick="filterDay('2026-10-24')" class="day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30">
+            24 ต.ค. (ถนนเลข 3-ขุนสถาน)
+          </button>
+          <button onclick="filterDay('2026-10-25')" class="day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30">
+            25 ต.ค. (บ้านมุง-ศรีเทพ-กทม)
+          </button>
+        </div>
+      </div>
+
+      <!-- Itinerary List Header -->
+      <div class="flex items-center justify-between px-1 pt-2">
+        <h3 class="text-xl font-black text-charcoal">แผนการเดินทาง</h3>
+        <span id="itineraryCount" class="text-xs font-bold text-charcoal/60 bg-white border border-grayGreen/30 px-2.5 py-0.5 rounded-full">36 จุด</span>
+      </div>
+
+      <!-- Timeline Items Container -->
+      <div id="itineraryContainer" class="space-y-3">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- TAB 2: ACCOMMODATIONS & EXPENSES -->
+    <section id="tabAccommodations" class="view-transition hidden space-y-4">
+      
+      <!-- Summary Card (Main: 40px radius) -->
+      <div class="bg-charcoal text-white rounded-main p-6 shadow-soft border border-grayGreen/20 relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-36 h-36 rounded-full bg-vibrantRed/20 blur-xl"></div>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-grayGreen/90 block mb-1">สรุปค่าที่พัก 4 คืน</span>
+        <div class="flex items-baseline gap-2 mb-4">
+          <span class="text-3xl font-black text-white">฿3,959.54</span>
+          <span class="text-xs text-grayGreen font-bold">รวมทั้งหมด</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-grayGreen/20">
+          <div class="bg-white/10 rounded-nested p-3 border border-grayGreen/20">
+            <span class="text-[10px] font-bold uppercase text-grayGreen block">คนละ (หาร 2)</span>
+            <span class="text-xl font-black text-vibrantRed">฿1,979.77</span>
+            <span class="text-[10px] text-grayGreen/80 block">พี & เนิร์ส</span>
+          </div>
+          <div class="bg-white/10 rounded-nested p-3 border border-grayGreen/20">
+            <span class="text-[10px] font-bold uppercase text-grayGreen block">สถานะการจอง</span>
+            <span class="text-sm font-black text-white block mt-1">จองแล้ว 3 / รอ 1</span>
+            <span class="text-[10px] text-grayGreen/80 block">รอจองคืนแรก</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accommodations List -->
+      <div class="space-y-3" id="accommodationsContainer">
+        <!-- Dynamic Acc Cards -->
+      </div>
+    </section>
+
+    <!-- TAB 3: PACKING CHECKLIST -->
+    <section id="tabChecklist" class="view-transition hidden space-y-4">
+      
+      <!-- Progress Card (Main: 40px radius) -->
+      <div class="bg-white rounded-main p-6 shadow-soft border border-grayGreen/30">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 block">PACKING READINESS</span>
+            <h3 class="text-xl font-black text-charcoal">เช็คลิสต์สัมภาระ</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-charcoal text-white flex items-center justify-center font-black text-sm" id="checklistPercentage">
+            0%
+          </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full h-3 bg-grayGreen/20 rounded-full overflow-hidden mb-2">
+          <div id="checklistProgressBar" class="h-full bg-vibrantRed transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs font-bold text-charcoal/70">
+          <span id="checklistStatusText">พร้อม 0 จาก 11 รายการ</span>
+          <button onclick="resetChecklist()" class="text-vibrantRed hover:underline">รีเซ็ต</button>
+        </div>
+      </div>
+
+      <!-- Checklist Items -->
+      <div class="space-y-2.5" id="checklistContainer">
+        <!-- Dynamic Checklist Items -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Bottom Navigation Bar (Glassmorphic) -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-4 pb-6 pt-2 z-40 pointer-events-none">
+    <div class="glass-dark border border-grayGreen/20 rounded-full p-1.5 shadow-2xl flex items-center justify-between pointer-events-auto">
+      
+      <!-- Tab 1: Itinerary & GPS -->
+      <button onclick="switchTab('itinerary')" id="navBtnItinerary" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white">
+        <i data-lucide="map" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold uppercase tracking-wider">การเดินทาง</span>
+      </button>
+
+      <!-- Tab 2: Accommodations & Budget -->
+      <button onclick="switchTab('accommodations')" id="navBtnAccommodations" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white">
+        <i data-lucide="bed" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold uppercase tracking-wider">ที่พัก/งบ</span>
+      </button>
+
+      <!-- Tab 3: Checklist -->
+      <button onclick="switchTab('checklist')" id="navBtnChecklist" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white">
+        <i data-lucide="check-square" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold uppercase tracking-wider">จัดกระเป๋า</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-charcoal text-white border border-grayGreen/30 px-4 py-2.5 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+    <i data-lucide="info" class="w-4 h-4 text-vibrantRed"></i>
+    <span id="toastMessage">อัปเดตข้อมูลเรียบร้อย</span>
+  </div>
+
+  <script>
+    // State
+    let tripData = null;
+    let currentFilterDay = 'all';
+    let currentTargetIndex = 0;
+    let userLocation = null;
+    let watchId = null;
+
+    // Helpers to clean up Google Sheets Date/Time formats
+    function formatTripDate(val) {
+      if (!val) return '';
+      val = String(val);
+      if (val.includes('T')) {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+      }
+      return val.split('T')[0];
+    }
+
+    function formatTripTime(val) {
+      if (!val) return 'ไม่ระบุเวลา';
+      val = String(val);
+      if (val.includes('1899-') || (val.includes('T') && val.includes('Z'))) {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          const h = String(d.getHours()).padStart(2, '0');
+          const m = String(d.getMinutes()).padStart(2, '0');
+          return `${h}:${m} น.`;
+        }
+      }
+      return val;
+    }
+
+    // Load from LocalStorage or Vercel API (/api/trip)
+    async function initData() {
+      // 1. Try reading from offline cache first (Instant UI render)
+      const cached = localStorage.getItem('NAN_TRIP_DATA_2026');
+      if (cached) {
+        try {
+          tripData = JSON.parse(cached);
+          renderAll();
+        } catch (e) {
+          console.error('Cache parse error', e);
+        }
+      }
+
+      // 2. Fetch fresh data from Vercel API / Google Sheet
+      try {
+        const res = await fetch('/api/trip');
+        if (res.ok) {
+          const freshData = await res.json();
+          if (freshData && freshData.itinerary && freshData.itinerary.length > 0) {
+            tripData = freshData;
+            localStorage.setItem('NAN_TRIP_DATA_2026', JSON.stringify(tripData));
+            showToast('ซิงก์ข้อมูลล่าสุดแล้ว');
+          }
+        }
+      } catch (err) {
+        console.warn('Network offline or API unavailable, using cached data.', err);
+      }
+
+      if (!tripData) {
+        // Fallback default
+        tripData = { itinerary: [], accommodations: [], checklist: [] };
+      }
+
+      renderAll();
+      initGPS();
+    }
+
+    // Initialize GPS Geolocation Watcher
+    function initGPS() {
+      const dot = document.getElementById('gpsStatusDot');
+      const text = document.getElementById('gpsStatusText');
+
+      if (!('geolocation' in navigator)) {
+        text.innerText = 'GPS ไม่รองรับ';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+        return;
+      }
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          userLocation = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+          text.innerText = 'GPS พร้อม';
+          updateGpsCalculations();
+        },
+        (err) => {
+          console.warn('GPS Error', err.message);
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+          text.innerText = 'GPS ออฟไลน์';
+          if (!userLocation) {
+            userLocation = { lat: 13.8055, lng: 100.5738 };
+            updateGpsCalculations();
+          }
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+    }
+
+    // Haversine formula with Mountain Road Curvature Factor (1.35x) & Moto Speed (45 km/h)
+    function calculateMotoDistanceAndEta(lat1, lon1, lat2, lon2) {
+      if (!lat1 || !lon1 || !lat2 || !lon2) return { km: '--', mins: '--' };
+
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const straightKm = R * c;
+
+      // ปรับสัมประสิทธิ์ทางเขา 1.35x สำหรับโค้งน่าน
+      const roadKm = Math.round(straightKm * 1.35 * 10) / 10;
+      const hours = roadKm / 45;
+      const mins = Math.round(hours * 60);
+
+      return { km: roadKm, mins: mins };
+    }
+
+    // Update Live Target Card metrics
+    function updateGpsCalculations() {
+      const items = tripData?.itinerary || [];
+      if (items.length === 0) return;
+
+      const target = items[currentTargetIndex] || items[0];
+      
+      document.getElementById('targetName').innerText = target.กิจกรรม_สถานที่ || 'ยังไม่ได้ระบุ';
+      document.getElementById('targetNote').innerText = target.ที่อยู่_หมายเหตุ || formatTripTime(target.เวลา) || 'กำลังมุ่งหน้าสู่จุดหมาย';
+      document.getElementById('targetDayBadge').innerText = formatTripDate(target.วันที่).replace('2026-', '') || 'TRIP';
+
+      if (userLocation && target.lat && target.lng) {
+        const calc = calculateMotoDistanceAndEta(userLocation.lat, userLocation.lng, target.lat, target.lng);
+        document.getElementById('targetDistance').innerText = calc.km;
+        
+        if (calc.mins > 60) {
+          const h = Math.floor(calc.mins / 60);
+          const m = calc.mins % 60;
+          document.getElementById('targetEta').innerText = `${h}h${m > 0 ? m + 'm' : ''}`;
+        } else {
+          document.getElementById('targetEta').innerText = calc.mins;
+        }
+
+        if (typeof calc.km === 'number' && calc.km <= 0.4) {
+          showToast(`ถึงจุดหมาย: ${target.กิจกรรม_สถานที่}!`);
+        }
+      } else {
+        document.getElementById('targetDistance').innerText = '--';
+        document.getElementById('targetEta').innerText = '--';
+      }
+    }
+
+    function setTargetStop(index) {
+      currentTargetIndex = index;
+      updateGpsCalculations();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('เปลี่ยนจุดหมายนำทางแล้ว');
+    }
+
+    async function checkinCurrentStop() {
+      const items = tripData?.itinerary || [];
+      if (currentTargetIndex < items.length - 1) {
+        items[currentTargetIndex].สถานะ = 'ถึงแล้ว';
+        saveLocalData();
+        
+        // Sync via Vercel API
+        fetch('/api/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'updateItinerary',
+            rowIndex: items[currentTargetIndex]._rowIndex || (currentTargetIndex + 2),
+            status: 'ถึงแล้ว'
+          })
+        }).catch(e => console.warn('Sync offline', e));
+
+        currentTargetIndex++;
+        updateGpsCalculations();
+        renderItinerary();
+        showToast('เช็คอินแล้ว! สลับไปยังจุดถัดไป');
+      } else {
+        showToast('ถึงจุดหมายสุดท้ายของทริปแล้ว!');
+      }
+    }
+
+    function openCurrentTargetMap() {
+      const target = tripData?.itinerary[currentTargetIndex];
+      if (!target) return;
+
+      if (target.map && target.map.startsWith('http')) {
+        window.open(target.map, '_blank');
+      } else if (target.lat && target.lng) {
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}&travelmode=two_wheeler`;
+        window.open(url, '_blank');
+      } else {
+        const query = encodeURIComponent(target.กิจกรรม_สถานที่ + ' ' + (target.ที่อยู่_หมายเหตุ || ''));
+        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+      }
+    }
+
+    function filterDay(day) {
+      currentFilterDay = day;
+      document.querySelectorAll('.day-chip').forEach(chip => {
+        chip.className = 'day-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-white text-charcoal border border-grayGreen/30';
+      });
+      event.target.className = 'day-chip active whitespace-nowrap px-4 py-2 rounded-full text-xs font-black transition-all bg-charcoal text-white shadow-sm border border-charcoal';
+      renderItinerary();
+    }
+
+    function renderItinerary() {
+      const container = document.getElementById('itineraryContainer');
+      const items = tripData?.itinerary || [];
+      
+      const filtered = currentFilterDay === 'all' 
+        ? items 
+        : items.filter(it => formatTripDate(it.วันที่) === currentFilterDay);
+
+      document.getElementById('itineraryCount').innerText = `${filtered.length} จุดหมาย`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-nested p-6 text-center text-charcoal/60 border border-grayGreen/20">
+            ไม่มีรายการในวันนี้
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map((item, idx) => {
+        const originalIndex = items.indexOf(item);
+        const isCurrentTarget = originalIndex === currentTargetIndex;
+        const isChecked = item.สถานะ === 'ถึงแล้ว';
+        const formattedDate = formatTripDate(item.วันที่);
+        const formattedTime = formatTripTime(item.เวลา);
+
+        return `
+          <div onclick="setTargetStop(${originalIndex})" class="cursor-pointer transition-all ${isCurrentTarget ? 'ring-2 ring-vibrantRed bg-white shadow-soft' : 'bg-white/90 hover:bg-white'} rounded-nested p-4 border border-grayGreen/25 flex items-start gap-3 relative overflow-hidden">
+            ${isCurrentTarget ? `<div class="absolute top-0 right-0 bg-vibrantRed text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-bl-xl tracking-wider">กำลังไป</div>` : ''}
+            
+            <div class="mt-0.5">
+              <span class="w-8 h-8 rounded-full ${isChecked ? 'bg-emerald-500 text-white' : (isCurrentTarget ? 'bg-vibrantRed text-white' : 'bg-grayGreen/20 text-charcoal')} flex items-center justify-center font-black text-xs">
+                ${isChecked ? '<i data-lucide="check" class="w-4 h-4"></i>' : (originalIndex + 1)}
+              </span>
+            </div>
+
+            <div class="flex-1 min-w-0 pr-6">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 bg-offWhite px-2 py-0.5 rounded-md">
+                  ${formattedTime}
+                </span>
+                <span class="text-[10px] font-bold text-grayGreen">
+                  ${formattedDate ? formattedDate.replace('2026-', '') : ''}
+                </span>
+              </div>
+              <h4 class="text-base font-black text-charcoal leading-snug truncate">${item.กิจกรรม_สถานที่}</h4>
+              ${item.ที่อยู่_หมายเหตุ ? `<p class="text-xs text-charcoal/70 line-clamp-1 mt-0.5">${item.ที่อยู่_หมายเหตุ}</p>` : ''}
+            </div>
+
+            <div class="self-center">
+              ${item.map ? `
+                <a href="${item.map}" target="_blank" onclick="event.stopPropagation()" class="w-9 h-9 rounded-full bg-offWhite hover:bg-grayGreen/30 border border-grayGreen/30 flex items-center justify-center text-charcoal transition-all">
+                  <i data-lucide="map-pin" class="w-4 h-4 text-vibrantRed"></i>
+                </a>
+              ` : `
+                <span class="w-9 h-9 rounded-full bg-offWhite/50 flex items-center justify-center text-charcoal/30">
+                  <i data-lucide="compass" class="w-4 h-4"></i>
+                </span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderAccommodations() {
+      const container = document.getElementById('accommodationsContainer');
+      const items = tripData?.accommodations || [];
+
+      container.innerHTML = items.map((acc) => {
+        const isBooked = acc.สถานะจอง === 'จองแล้ว';
+        return `
+          <div class="bg-white rounded-nested p-5 shadow-soft border border-grayGreen/30 space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 block">${acc.วันที่} • ${acc.จังหวัด_อำเภอ}</span>
+                <h4 class="text-lg font-black text-charcoal leading-tight">${acc.ชื่อที่พัก}</h4>
+              </div>
+              <span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full ${isBooked ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+                ${acc.สถานะจอง}
+              </span>
+            </div>
+
+            <p class="text-xs text-charcoal/70">${acc.รายละเอียด || ''}</p>
+
+            <div class="pt-2 border-t border-grayGreen/20 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-charcoal/60 block">ราคารวม / หาร 2</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-base font-black text-charcoal">฿${Number(acc.ราคา).toLocaleString()}</span>
+                  <span class="text-xs font-bold text-vibrantRed">(คนละ ฿${Number(acc.หาร2).toLocaleString()})</span>
+                </div>
+              </div>
+
+              ${acc.map ? `
+                <a href="${acc.map}" target="_blank" class="px-3.5 py-2 bg-offWhite hover:bg-grayGreen/20 border border-grayGreen/40 text-charcoal font-bold text-xs rounded-nested flex items-center gap-1.5 transition-all">
+                  <i data-lucide="navigation-2" class="w-3.5 h-3.5 text-vibrantRed"></i>
+                  <span>แผนที่</span>
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklistContainer');
+      const items = tripData?.checklist || [];
+
+      let readyCount = 0;
+      container.innerHTML = items.map((item, idx) => {
+        const isReady = item.เช็ค === 'พร้อม';
+        if (isReady) readyCount++;
+
+        return `
+          <div onclick="toggleChecklist(${idx})" class="cursor-pointer bg-white rounded-nested p-4 shadow-sm border border-grayGreen/25 flex items-center justify-between transition-all active:scale-[0.99]">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isReady ? 'bg-vibrantRed border-vibrantRed text-white' : 'border-grayGreen/60 bg-transparent'}">
+                ${isReady ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+              </div>
+              <div>
+                <h4 class="text-sm font-extrabold ${isReady ? 'line-through text-charcoal/40' : 'text-charcoal'}">${item.รายการ}</h4>
+                ${item.หมายเหตุ ? `<p class="text-[11px] text-charcoal/60">${item.หมายเหตุ}</p>` : ''}
+              </div>
+            </div>
+            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isReady ? 'bg-emerald-50 text-emerald-700' : 'bg-offWhite text-charcoal/50'}">
+              ${isReady ? 'พร้อม' : 'ยังไม่พร้อม'}
+            </span>
+          </div>
+        `;
+      }).join('');
+
+      const total = items.length;
+      const percent = total > 0 ? Math.round((readyCount / total) * 100) : 0;
+      document.getElementById('checklistPercentage').innerText = `${percent}%`;
+      document.getElementById('checklistProgressBar').style.width = `${percent}%`;
+      document.getElementById('checklistStatusText').innerText = `พร้อม ${readyCount} จาก ${total} รายการ`;
+
+      lucide.createIcons();
+    }
+
+    function toggleChecklist(index) {
+      const item = tripData?.checklist[index];
+      if (!item) return;
+
+      item.เช็ค = (item.เช็ค === 'พร้อม') ? 'ไม่พร้อม' : 'พร้อม';
+      saveLocalData();
+      renderChecklist();
+
+      // Sync via Vercel API
+      fetch('/api/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateChecklist',
+          rowIndex: item._rowIndex || (index + 2),
+          status: item.เช็ค
+        })
+      }).catch(e => console.warn('Sync offline', e));
+    }
+
+    function resetChecklist() {
+      if (!confirm('ต้องการรีเซ็ตเช็คลิสต์ทั้งหมดเป็น "ไม่พร้อม" ใช่ไหม?')) return;
+      (tripData.checklist || []).forEach((item, index) => {
+        item.เช็ค = 'ไม่พร้อม';
+        fetch('/api/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'updateChecklist',
+            rowIndex: item._rowIndex || (index + 2),
+            status: 'ไม่พร้อม'
+          })
+        }).catch(e => console.warn('Sync offline', e));
+      });
+      saveLocalData();
+      renderChecklist();
+      showToast('รีเซ็ตเช็คลิสต์แล้ว');
+    }
+
+    function saveLocalData() {
+      localStorage.setItem('NAN_TRIP_DATA_2026', JSON.stringify(tripData));
+    }
+
+    function switchTab(tabId) {
+      const tabItinerary = document.getElementById('tabItinerary');
+      const tabAccommodations = document.getElementById('tabAccommodations');
+      const tabChecklist = document.getElementById('tabChecklist');
+
+      const btnItinerary = document.getElementById('navBtnItinerary');
+      const btnAccommodations = document.getElementById('navBtnAccommodations');
+      const btnChecklist = document.getElementById('navBtnChecklist');
+
+      tabItinerary.classList.add('hidden');
+      tabAccommodations.classList.add('hidden');
+      tabChecklist.classList.add('hidden');
+
+      [btnItinerary, btnAccommodations, btnChecklist].forEach(btn => {
+        btn.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white';
+      });
+
+      if (tabId === 'itinerary') {
+        tabItinerary.classList.remove('hidden');
+        btnItinerary.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+      } else if (tabId === 'accommodations') {
+        tabAccommodations.classList.remove('hidden');
+        btnAccommodations.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+      } else if (tabId === 'checklist') {
+        tabChecklist.classList.remove('hidden');
+        btnChecklist.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const msgElem = document.getElementById('toastMessage');
+      msgElem.innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function renderAll() {
+      renderItinerary();
+      renderAccommodations();
+      renderChecklist();
+      updateGpsCalculations();
+      lucide.createIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+    });
+  </script>
+</body>
+</html>

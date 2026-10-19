@@ -1,6 +1,6 @@
 /**
  * Google Apps Script - Database API for Vercel
- * รองรับ Itinerary, Accommodations, Checklist, และ Expenses (ระบบบันทึกค่าใช้จ่ายพร้อม GPS)
+ * รองรับ Itinerary, Accommodations, Checklist, และ Expenses (เพิ่ม/ลบ ค่าใช้จ่ายพร้อม GPS)
  */
 
 // 1. GET Request: ดึงข้อมูลทริปทั้งหมดจาก Sheet ส่งให้ Vercel
@@ -20,7 +20,7 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 2. POST Request: รับคำสั่งอัปเดต หรือบันทึกค่าใช้จ่ายใหม่จาก Vercel
+// 2. POST Request: รับคำสั่งอัปเดต, บันทึก หรือลบค่าใช้จ่ายจาก Vercel
 function doPost(e) {
   try {
     const contents = JSON.parse(e.postData.contents);
@@ -46,6 +46,26 @@ function doPost(e) {
 
       sheet.appendRow(newRow);
       return ContentService.createTextOutput(JSON.stringify({ success: true, message: 'Expense added', rowIndex: sheet.getLastRow() }))
+        .setMimeType(ContentService.MimeType.JSON);
+
+    } else if (action === 'deleteExpense') {
+      const sheet = ss.getSheetByName('Expenses');
+      if (sheet) {
+        if (contents.rowIndex && contents.rowIndex <= sheet.getLastRow()) {
+          sheet.deleteRow(contents.rowIndex);
+        } else if (contents.timestamp || contents.title) {
+          const data = sheet.getDataRange().getValues();
+          for (let i = data.length - 1; i >= 1; i--) {
+            const rowTime = String(data[i][0]);
+            const rowTitle = String(data[i][1]);
+            if ((contents.timestamp && rowTime.includes(contents.timestamp)) || (contents.title && rowTitle === contents.title)) {
+              sheet.deleteRow(i + 1);
+              break;
+            }
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ success: true, action: 'deleteExpense' }))
         .setMimeType(ContentService.MimeType.JSON);
 
     } else if (action === 'updateChecklist') {

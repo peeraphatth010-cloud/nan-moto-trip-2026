@@ -1,5 +1,5 @@
 // api/trip.js - Vercel Serverless Function for Google Sheets Sync
-const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2xZLBZfbljD4IGaAox8TmdGSGE3D9YxzRon39HqXdgMI4y-j5gS9fuUBs9VrwTtrgzg/exec';
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaXiT_kJVgJS0AyxpeFx7cj7DjmvALJfAz3YTVklNywvjGwuDY_QpIwebRmNd_Nsykgw/exec';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -17,13 +17,14 @@ export default async function handler(req, res) {
 
   const SCRIPT_URL = process.env.GOOGLE_SHEET_API_URL || DEFAULT_SCRIPT_URL;
 
-  // Handle POST (Update Item)
+  // Handle POST (Update / Add)
   if (req.method === 'POST') {
     try {
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(req.body)
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(req.body),
+        redirect: 'follow'
       });
       const data = await response.json();
       return res.status(200).json(data);
@@ -38,7 +39,8 @@ export default async function handler(req, res) {
     try {
       const response = await fetch(SCRIPT_URL, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow'
       });
       if (response.ok) {
         const sheetData = await response.json();
@@ -84,7 +86,7 @@ function getDefaultTripData() {
       { วันที่: '2026-10-24', เวลา: '10:30-11:30', กิจกรรม_สถานที่: 'น้ำตกสะปัน Or บ่อเกลือสินเธาว์ภูเขา', ที่อยู่_หมายเหตุ: 'ชมบ่อเกลือโบราณ', สถานะ: '', map: '', lat: 19.1505, lng: 101.1512 },
       { วันที่: '2026-10-24', เวลา: '11:45:00', กิจกรรม_สถานที่: 'โค้งเลขศูนย์', ที่อยู่_หมายเหตุ: 'จุดเช็คอินโค้งสวยงาม', สถานะ: '', map: 'https://maps.app.goo.gl/91QTT8DCfQzYeaNw7', lat: 19.0682, lng: 101.0743 },
       { วันที่: '2026-10-24', เวลา: '12:15:00', กิจกรรม_สถานที่: 'ถนนเลข 3 น่าน', ที่อยู่_หมายเหตุ: 'ไฮไลท์โค้งถนนเลข 3', สถานะ: '', map: 'https://maps.app.goo.gl/z2qxJnPf9BPUDXQw5', lat: 18.9951, lng: 100.9984 },
-      { วันที่: '2026-10-24', เวลา: '12:35:00', กิจกรรม_สถานที่: 'จุดชมวิว ไอเลิฟ โค้งรูปตัว ยู', ที่อยู่_หมายเหตุ: 'ถ่ายรูปโค้งตัว U', สถานะ: '', map: 'https://maps.app.goo.gl/iNhNfsNnnsUFwcBMA', lat: 18.9832, lng: 100.9652 },
+      { วัน: '2026-10-24', เวลา: '12:35:00', กิจกรรม_สถานที่: 'จุดชมวิว ไอเลิฟ โค้งรูปตัว ยู', ที่อยู่_หมายเหตุ: 'ถ่ายรูปโค้งตัว U', สถานะ: '', map: 'https://maps.app.goo.gl/iNhNfsNnnsUFwcBMA', lat: 18.9832, lng: 100.9652 },
       { วันที่: '2026-10-24', เวลา: '12:50:00', กิจกรรม_สถานที่: 'จุดชมวิวบาหลี น่าน แอนด์ คาเฟ่', ที่อยู่_หมายเหตุ: 'แวะดื่มเครื่องดื่ม พักรถ', สถานะ: '', map: 'https://maps.app.goo.gl/82x5sMHi6wNkAdho9', lat: 18.9712, lng: 100.9421 },
       { วันที่: '2026-10-24', เวลา: '13:00-15:00', กิจกรรม_สถานที่: 'เดินทางไปขุนสถาน', ที่อยู่_หมายเหตุ: 'เส้นทางสายธรรมชาติ', สถานะ: '', map: '', lat: 18.2756, lng: 100.5214 },
       { วันที่: '2026-10-24', เวลา: '15:00-16:00', กิจกรรม_สถานที่: 'อุทยานแห่งชาติขุนสถาน น่าน', ที่อยู่_หมายเหตุ: 'ประทับตราอุทยาน วิวสันเขา', สถานะ: '', map: 'https://maps.app.goo.gl/zt5xEQsxhxFm1Qk8A', lat: 18.2833, lng: 100.5056 },

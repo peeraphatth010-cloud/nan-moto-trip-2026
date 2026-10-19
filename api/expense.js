@@ -1,5 +1,5 @@
 // api/expense.js - Vercel Serverless Function to add new expense
-const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2xZLBZfbljD4IGaAox8TmdGSGE3D9YxzRon39HqXdgMI4y-j5gS9fuUBs9VrwTtrgzg/exec';
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaXiT_kJVgJS0AyxpeFx7cj7DjmvALJfAz3YTVklNywvjGwuDY_QpIwebRmNd_Nsykgw/exec';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,13 +20,14 @@ export default async function handler(req, res) {
   }
 
   const SCRIPT_URL = process.env.GOOGLE_SHEET_API_URL || DEFAULT_SCRIPT_URL;
-  const payload = req.body; // { action: 'addExpense', expense: { ... } }
+  const payload = req.body;
 
   try {
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'
     });
     const result = await response.json();
     return res.status(200).json(result);

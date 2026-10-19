@@ -509,7 +509,9 @@
       return val;
     }
 
-    // Load from LocalStorage or Vercel API (/api/trip)
+    const GAS_DIRECT_URL = 'https://script.google.com/macros/s/AKfycbzaXiT_kJVgJS0AyxpeFx7cj7DjmvALJfAz3YTVklNywvjGwuDY_QpIwebRmNd_Nsykgw/exec';
+
+    // Load from LocalStorage or Vercel API (/api/trip) or direct Google Apps Script
     async function initData() {
       const cached = localStorage.getItem('NAN_TRIP_DATA_2026');
       if (cached) {
@@ -522,17 +524,30 @@
       }
 
       try {
-        const res = await fetch('/api/trip');
-        if (res.ok) {
-          const freshData = await res.json();
-          if (freshData && freshData.itinerary && freshData.itinerary.length > 0) {
-            tripData = freshData;
-            localStorage.setItem('NAN_TRIP_DATA_2026', JSON.stringify(tripData));
-            showToast('ซิงก์ข้อมูลล่าสุดแล้ว');
+        let freshData = null;
+        try {
+          const res = await fetch('/api/trip');
+          if (res.ok) {
+            freshData = await res.json();
+          }
+        } catch (e) {
+          console.warn('Vercel /api/trip unreachable, trying direct GAS URL...', e);
+        }
+
+        if (!freshData || !freshData.itinerary || freshData.itinerary.length === 0) {
+          const res = await fetch(GAS_DIRECT_URL);
+          if (res.ok) {
+            freshData = await res.json();
           }
         }
+
+        if (freshData && freshData.itinerary && freshData.itinerary.length > 0) {
+          tripData = freshData;
+          localStorage.setItem('NAN_TRIP_DATA_2026', JSON.stringify(tripData));
+          showToast('ซิงก์ข้อมูลล่าสุดจาก Sheet แล้ว');
+        }
       } catch (err) {
-        console.warn('Network offline or API unavailable, using cached data.', err);
+        console.warn('Network offline, using cached data.', err);
       }
 
       if (!tripData) {
@@ -643,15 +658,24 @@
         items[currentTargetIndex].สถานะ = 'ถึงแล้ว';
         saveLocalData();
         
+        const payload = {
+          action: 'updateItinerary',
+          rowIndex: items[currentTargetIndex]._rowIndex || (currentTargetIndex + 2),
+          status: 'ถึงแล้ว'
+        };
+
         fetch('/api/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'updateItinerary',
-            rowIndex: items[currentTargetIndex]._rowIndex || (currentTargetIndex + 2),
-            status: 'ถึงแล้ว'
-          })
-        }).catch(e => console.warn('Sync offline', e));
+          body: JSON.stringify(payload)
+        }).catch(() => {
+          fetch(GAS_DIRECT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          }).catch(e => console.warn('Sync offline', e));
+        });
 
         currentTargetIndex++;
         updateGpsCalculations();
@@ -1134,20 +1158,41 @@
       document.getElementById('expenseForm').reset();
       showToast('บันทึกค่าใช้จ่ายแล้ว!');
 
-      // 2. Sync to Server / Google Sheet
+      // 2. Sync to Server / Google Sheet (Dual-Sync: Vercel API with Direct GAS Fallback)
+      const payload = {
+        action: 'addExpense',
+        expense: newExpense
+      };
+
       try {
-        await fetch('/api/expense', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'addExpense',
-            expense: newExpense
-          })
-        });
+        let synced = false;
+        try {
+          const res = await fetch('/api/expense', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success) synced = true;
+          }
+        } catch (vErr) {
+          console.warn('Vercel API failed, switching to direct GAS endpoint...', vErr);
+        }
+
+        // Direct fallback
+        if (!synced) {
+          await fetch(GAS_DIRECT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+        }
         showToast('ซิงก์ข้อมูลลง Google Sheet แล้ว');
       } catch (err) {
         console.warn('Expense sync error', err);
-        showToast('บันทึกในเครื่องแล้ว (รอซิงก์เมื่อต่อเน็ต)');
+        showToast('บันทึกในเครื่องแล้ว (รอต่อเน็ต)');
       } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i><span>บันทึกค่าใช้จ่ายลง Google Sheet</span>';
@@ -1163,15 +1208,24 @@
       saveLocalData();
       renderChecklist();
 
+      const payload = {
+        action: 'updateChecklist',
+        rowIndex: item._rowIndex || (index + 2),
+        status: item.เช็ค
+      };
+
       fetch('/api/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'updateChecklist',
-          rowIndex: item._rowIndex || (index + 2),
-          status: item.เช็ค
-        })
-      }).catch(e => console.warn('Sync offline', e));
+        body: JSON.stringify(payload)
+      }).catch(() => {
+        fetch(GAS_DIRECT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        }).catch(e => console.warn('Sync offline', e));
+      });
     }
 
     function resetChecklist() {

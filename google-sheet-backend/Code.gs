@@ -1,15 +1,18 @@
 /**
  * Google Apps Script - Database API for Vercel
- * ใช้เชื่อมต่อ Google Sheets เป็น Headless Database 2-way sync ให้กับ Vercel Web App
+ * รองรับ Itinerary, Accommodations, Checklist, และ Expenses (ระบบบันทึกค่าใช้จ่ายพร้อม GPS)
  */
 
 // 1. GET Request: ดึงข้อมูลทริปทั้งหมดจาก Sheet ส่งให้ Vercel
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  ensureExpensesSheet(ss);
+
   const data = {
     itinerary: getSheetData(ss.getSheetByName('Itinerary')),
     accommodations: getSheetData(ss.getSheetByName('Accommodations')),
     checklist: getSheetData(ss.getSheetByName('Checklist')),
+    expenses: getSheetData(ss.getSheetByName('Expenses')),
     lastUpdated: new Date().toISOString()
   };
 
@@ -17,33 +20,69 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 2. POST Request: รับคำสั่งอัปเดตสถานะ Checklist หรือ Itinerary จาก Vercel
+// 2. POST Request: รับคำสั่งอัปเดต หรือบันทึกค่าใช้จ่ายใหม่จาก Vercel
 function doPost(e) {
   try {
     const contents = JSON.parse(e.postData.contents);
     const action = contents.action;
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    if (action === 'updateChecklist') {
+    if (action === 'addExpense') {
+      const sheet = ensureExpensesSheet(ss);
+      const exp = contents.expense;
+      
+      const newRow = [
+        exp.timestamp || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
+        exp.title || 'ค่าใช้จ่ายทั่วไป',
+        exp.category || 'อื่นๆ',
+        Number(exp.amount) || 0,
+        exp.payer || 'พี',
+        exp.splitType || 'หาร 2 (คนละครึ่ง)',
+        exp.locationName || '',
+        exp.lat || '',
+        exp.lng || '',
+        exp.mapUrl || (exp.lat && exp.lng ? `https://www.google.com/maps?q=${exp.lat},${exp.lng}` : '')
+      ];
+
+      sheet.appendRow(newRow);
+      return ContentService.createTextOutput(JSON.stringify({ success: true, message: 'Expense added', rowIndex: sheet.getLastRow() }))
+        .setMimeType(ContentService.MimeType.JSON);
+
+    } else if (action === 'updateChecklist') {
       const sheet = ss.getSheetByName('Checklist');
       if (sheet && contents.rowIndex) {
-        // คอลัมน์ C คือ 'เช็ค'
         sheet.getRange(contents.rowIndex, 3).setValue(contents.status);
       }
+      return ContentService.createTextOutput(JSON.stringify({ success: true, action: action }))
+        .setMimeType(ContentService.MimeType.JSON);
+
     } else if (action === 'updateItinerary') {
       const sheet = ss.getSheetByName('Itinerary');
       if (sheet && contents.rowIndex) {
-        // คอลัมน์ F คือ 'สถานะ'
         sheet.getRange(contents.rowIndex, 6).setValue(contents.status);
       }
+      return ContentService.createTextOutput(JSON.stringify({ success: true, action: action }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ success: true, action: action }))
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'Unknown action' }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function ensureExpensesSheet(ss) {
+  let sheet = ss.getSheetByName('Expenses');
+  if (!sheet) {
+    sheet = ss.insertSheet('Expenses');
+    const headers = ['วันที่_เวลา', 'รายการ', 'หมวดหมู่', 'จำนวนเงิน', 'ผู้จ่าย', 'การหาร', 'สถานที่', 'lat', 'lng', 'map_url'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, headers.length).setBackground('#171e19').setFontColor('#ffffff').setFontWeight('bold');
+  }
+  return sheet;
 }
 
 function getSheetData(sheet) {
@@ -71,7 +110,7 @@ function getSheetData(sheet) {
   return rows;
 }
 
-// 3. ฟังก์ชันสร้าง Sheet และใส่ข้อมูลเริ่มต้นทั้งหมด (กด Run 1 ครั้งใน Apps Script)
+// 3. ฟังก์ชันสร้าง Sheet และใส่ข้อมูลเริ่มต้นทั้งหมด
 function setupInitialSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   
@@ -155,6 +194,9 @@ function setupInitialSheets() {
   sheetChecklist.getRange(1, 1, checkData.length, checkData[0].length).setValues(checkData);
   sheetChecklist.setFrozenRows(1);
   sheetChecklist.getRange(1, 1, 1, checkData[0].length).setBackground('#171e19').setFontColor('#ffffff').setFontWeight('bold');
+
+  // Sheet 4: Expenses
+  ensureExpensesSheet(ss);
 
   return 'Setup Initial Sheets สำเร็จเรียบร้อย!';
 }

@@ -135,7 +135,6 @@
 
           <!-- Metrics Matrix (Nested: 24px radius) -->
           <div class="grid grid-cols-2 gap-3 mb-5">
-            <!-- Distance Metric -->
             <div class="bg-white/10 border border-grayGreen/20 rounded-nested p-3.5 backdrop-blur-sm">
               <div class="flex items-center gap-1.5 text-grayGreen mb-0.5">
                 <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
@@ -147,7 +146,6 @@
               </div>
             </div>
 
-            <!-- Time by Motorcycle Metric -->
             <div class="bg-white/10 border border-grayGreen/20 rounded-nested p-3.5 backdrop-blur-sm">
               <div class="flex items-center gap-1.5 text-grayGreen mb-0.5">
                 <i data-lucide="timer" class="w-3.5 h-3.5"></i>
@@ -162,13 +160,11 @@
 
           <!-- Motorcycle Mode Controls & Actions -->
           <div class="flex items-center gap-2">
-            <!-- Primary CTA: Google Maps Navigation -->
             <button id="btnOpenMaps" onclick="openCurrentTargetMap()" class="flex-1 bg-vibrantRed hover:bg-[#a60010] active:scale-[0.98] transition-all text-white py-3.5 px-4 rounded-nested font-extrabold text-sm flex items-center justify-center gap-2 shadow-float">
               <i data-lucide="map-pin" class="w-4 h-4"></i>
               <span>นำทาง Google Maps</span>
             </button>
 
-            <!-- Secondary CTA: Check-in / Next Stop -->
             <button id="btnCheckin" onclick="checkinCurrentStop()" class="bg-white/15 hover:bg-white/25 active:scale-[0.98] transition-all border border-grayGreen/30 text-white p-3.5 rounded-nested font-extrabold text-sm flex items-center justify-center" title="เช็คอิน / ข้ามไปจุดถัดไป">
               <i data-lucide="check" class="w-5 h-5 text-grayGreen"></i>
             </button>
@@ -213,7 +209,68 @@
       </div>
     </section>
 
-    <!-- TAB 2: ACCOMMODATIONS & EXPENSES -->
+    <!-- TAB 2: EXPENSE TRACKER & SETTLEMENT DASHBOARD (NEW) -->
+    <section id="tabExpenses" class="view-transition hidden space-y-4">
+      
+      <!-- Expense Main Card: Settlement & Total -->
+      <div class="bg-charcoal text-white rounded-main p-6 shadow-soft border border-grayGreen/20 relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-36 h-36 rounded-full bg-vibrantRed/20 blur-xl"></div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-grayGreen/90">สรุปค่าใช้จ่ายทริปน่าน</span>
+          <button onclick="openExpenseModal()" class="bg-vibrantRed hover:bg-[#a60010] active:scale-95 text-white text-xs font-black px-3.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>บันทึกจ่าย</span>
+          </button>
+        </div>
+
+        <div class="flex items-baseline gap-2 mb-4">
+          <span id="expTotalAmount" class="text-3xl font-black text-white">฿0</span>
+          <span class="text-xs text-grayGreen font-bold">รวมทุกหมวดหมู่</span>
+        </div>
+
+        <!-- Settlement Result Card -->
+        <div id="settlementBox" class="bg-white/10 border border-grayGreen/20 rounded-nested p-4 mb-4 backdrop-blur-sm">
+          <span class="text-[10px] font-bold uppercase text-grayGreen block mb-1">เคลียร์เงินระหว่าง พี & เนิร์ส</span>
+          <div id="settlementText" class="text-base font-black text-white leading-tight">
+            ยอดเงินลงตัวพอดี
+          </div>
+          <p id="settlementSub" class="text-xs text-grayGreen/80 mt-0.5">ยังไม่มีรายการค่าใช้จ่ายที่ต้องเคลียร์</p>
+        </div>
+
+        <!-- Payer Breakdown Matrix -->
+        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-grayGreen/20">
+          <div class="bg-white/5 rounded-nested p-3 border border-white/10">
+            <span class="text-[10px] font-bold uppercase text-grayGreen block">พียอดจ่ายรวม</span>
+            <span id="expPeeTotal" class="text-lg font-black text-white">฿0</span>
+          </div>
+          <div class="bg-white/5 rounded-nested p-3 border border-white/10">
+            <span class="text-[10px] font-bold uppercase text-grayGreen block">เนิร์สยอดจ่ายรวม</span>
+            <span id="expNurseTotal" class="text-lg font-black text-white">฿0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filter & Breakdown -->
+      <div class="pt-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 px-1 mb-2 block">หมวดหมู่ค่าใช้จ่าย</span>
+        <div id="categorySummaryGrid" class="grid grid-cols-3 gap-2">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Expense History Header -->
+      <div class="flex items-center justify-between px-1 pt-2">
+        <h3 class="text-xl font-black text-charcoal">ประวัติการจ่าย</h3>
+        <span id="expenseCountBadge" class="text-xs font-bold text-charcoal/60 bg-white border border-grayGreen/30 px-2.5 py-0.5 rounded-full">0 รายการ</span>
+      </div>
+
+      <!-- Expense Items List -->
+      <div id="expenseListContainer" class="space-y-3">
+        <!-- Dynamic Expense Cards -->
+      </div>
+    </section>
+
+    <!-- TAB 3: ACCOMMODATIONS -->
     <section id="tabAccommodations" class="view-transition hidden space-y-4">
       
       <!-- Summary Card (Main: 40px radius) -->
@@ -245,7 +302,7 @@
       </div>
     </section>
 
-    <!-- TAB 3: PACKING CHECKLIST -->
+    <!-- TAB 4: PACKING CHECKLIST -->
     <section id="tabChecklist" class="view-transition hidden space-y-4">
       
       <!-- Progress Card (Main: 40px radius) -->
@@ -278,29 +335,129 @@
 
   </main>
 
-  <!-- Sticky Bottom Navigation Bar (Glassmorphic) -->
+  <!-- Sticky Bottom Navigation Bar (4 Tabs) -->
   <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-4 pb-6 pt-2 z-40 pointer-events-none">
     <div class="glass-dark border border-grayGreen/20 rounded-full p-1.5 shadow-2xl flex items-center justify-between pointer-events-auto">
       
       <!-- Tab 1: Itinerary & GPS -->
-      <button onclick="switchTab('itinerary')" id="navBtnItinerary" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white">
-        <i data-lucide="map" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold uppercase tracking-wider">การเดินทาง</span>
+      <button onclick="switchTab('itinerary')" id="navBtnItinerary" class="flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all bg-vibrantRed text-white">
+        <i data-lucide="map" class="w-4 h-4"></i>
+        <span class="text-[9px] font-bold uppercase tracking-wider">เดินทาง</span>
       </button>
 
-      <!-- Tab 2: Accommodations & Budget -->
-      <button onclick="switchTab('accommodations')" id="navBtnAccommodations" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white">
-        <i data-lucide="bed" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold uppercase tracking-wider">ที่พัก/งบ</span>
+      <!-- Tab 2: Expenses (NEW) -->
+      <button onclick="switchTab('expenses')" id="navBtnExpenses" class="flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all text-grayGreen hover:text-white">
+        <i data-lucide="wallet" class="w-4 h-4"></i>
+        <span class="text-[9px] font-bold uppercase tracking-wider">ค่าใช้จ่าย</span>
       </button>
 
-      <!-- Tab 3: Checklist -->
-      <button onclick="switchTab('checklist')" id="navBtnChecklist" class="flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white">
-        <i data-lucide="check-square" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold uppercase tracking-wider">จัดกระเป๋า</span>
+      <!-- Tab 3: Accommodations -->
+      <button onclick="switchTab('accommodations')" id="navBtnAccommodations" class="flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all text-grayGreen hover:text-white">
+        <i data-lucide="bed" class="w-4 h-4"></i>
+        <span class="text-[9px] font-bold uppercase tracking-wider">ที่พัก</span>
+      </button>
+
+      <!-- Tab 4: Checklist -->
+      <button onclick="switchTab('checklist')" id="navBtnChecklist" class="flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all text-grayGreen hover:text-white">
+        <i data-lucide="check-square" class="w-4 h-4"></i>
+        <span class="text-[9px] font-bold uppercase tracking-wider">สัมภาระ</span>
       </button>
     </div>
   </nav>
+
+  <!-- MODAL: ADD EXPENSE WITH GPS TAGGING -->
+  <div id="expenseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-all duration-250">
+    <div class="bg-white w-full max-w-md rounded-t-[40px] sm:rounded-main p-6 shadow-2xl border border-grayGreen/30 max-h-[90vh] overflow-y-auto no-scrollbar transform translate-y-8 transition-transform duration-250">
+      
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 block">RECORD EXPENSE</span>
+          <h3 class="text-xl font-black text-charcoal">บันทึกค่าใช้จ่าย</h3>
+        </div>
+        <button onclick="closeExpenseModal()" class="w-9 h-9 rounded-full bg-offWhite border border-grayGreen/30 flex items-center justify-center text-charcoal/70 hover:text-charcoal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="expenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-4">
+        
+        <!-- Amount -->
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 block mb-1">จำนวนเงิน (บาท) *</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-charcoal">฿</span>
+            <input type="number" step="0.01" id="expInputAmount" required placeholder="0.00" class="w-full pl-10 pr-4 py-3 bg-offWhite/80 rounded-nested border border-grayGreen/30 font-black text-2xl text-charcoal focus:outline-none focus:ring-2 focus:ring-vibrantRed">
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 block mb-1">รายการ *</label>
+          <input type="text" id="expInputTitle" required placeholder="เช่น เติมน้ำมัน, กาแฟดอยสกาด" class="w-full px-4 py-2.5 bg-offWhite/80 rounded-nested border border-grayGreen/30 font-bold text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-vibrantRed">
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 block mb-1.5">หมวดหมู่</label>
+          <div class="grid grid-cols-3 gap-2" id="expCategorySelector">
+            <button type="button" onclick="selectExpCategory('⛽ น้ำมันรถ')" class="cat-pill active py-2 px-2 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal">⛽ น้ำมัน</button>
+            <button type="button" onclick="selectExpCategory('🍜 อาหาร/คาเฟ่')" class="cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">🍜 อาหาร</button>
+            <button type="button" onclick="selectExpCategory('🏨 ที่พัก')" class="cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">🏨 ที่พัก</button>
+            <button type="button" onclick="selectExpCategory('🎟️ ค่าเข้า/อุทยาน')" class="cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">🎟️ อุทยาน</button>
+            <button type="button" onclick="selectExpCategory('🛍️ ซื้อของ/แคมป์')" class="cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">🛍️ ช้อปปิ้ง</button>
+            <button type="button" onclick="selectExpCategory('🔧 อื่นๆ')" class="cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">🔧 อื่นๆ</button>
+          </div>
+        </div>
+
+        <!-- Who Paid (Payer) -->
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 block mb-1.5">ใครเป็นคนออกเงิน? (ผู้จ่าย)</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="payerPee" onclick="selectPayer('พี')" class="py-2.5 rounded-nested font-black text-sm border transition-all bg-vibrantRed text-white border-vibrantRed">
+              พี จ่าย
+            </button>
+            <button type="button" id="payerNurse" onclick="selectPayer('เนิร์ส')" class="py-2.5 rounded-nested font-black text-sm border transition-all bg-white text-charcoal border-grayGreen/30">
+              เนิร์ส จ่าย
+            </button>
+          </div>
+        </div>
+
+        <!-- Split Option -->
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 block mb-1.5">การหารเงิน</label>
+          <div class="grid grid-cols-3 gap-1.5 text-center">
+            <button type="button" id="splitHalf" onclick="selectSplit('หาร 2 (คนละครึ่ง)')" class="py-2 px-1 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal">หาร 2</button>
+            <button type="button" id="splitPee" onclick="selectSplit('พีจ่ายคนเดียว')" class="py-2 px-1 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">พีคนเดียว</button>
+            <button type="button" id="splitNurse" onclick="selectSplit('เนิร์สจ่ายคนเดียว')" class="py-2 px-1 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30">เนิร์สคนเดียว</button>
+          </div>
+        </div>
+
+        <!-- GPS Location Tagging (Smart Detect) -->
+        <div class="bg-offWhite/80 rounded-nested p-3.5 border border-grayGreen/30">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/70 flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-vibrantRed"></i>
+              <span>สถานที่เชื่อมต่อ GPS</span>
+            </span>
+            <button type="button" onclick="refreshExpenseGps()" class="text-[10px] font-extrabold text-vibrantRed hover:underline">
+              รีเฟรช GPS
+            </button>
+          </div>
+          <input type="text" id="expInputLocation" placeholder="กำลังตรวจจับสถานที่จาก GPS..." class="w-full bg-white px-3 py-1.5 rounded-xl border border-grayGreen/30 text-xs font-bold text-charcoal mb-1">
+          <div class="flex items-center justify-between text-[10px] text-grayGreen font-bold px-1">
+            <span id="expGpsCoord">GPS: กำลังจับพิกัด...</span>
+            <span id="expGpsNearStop"></span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btnSaveExpense" class="w-full bg-vibrantRed hover:bg-[#a60010] active:scale-[0.98] transition-all text-white py-3.5 rounded-nested font-black text-sm flex items-center justify-center gap-2 shadow-float">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          <span>บันทึกค่าใช้จ่ายลง Google Sheet</span>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- Toast Notification -->
   <div id="toastNotification" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-charcoal text-white border border-grayGreen/30 px-4 py-2.5 rounded-full shadow-lg text-xs font-bold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
@@ -315,6 +472,12 @@
     let currentTargetIndex = 0;
     let userLocation = null;
     let watchId = null;
+
+    // Form Modal State
+    let selectedCategory = '⛽ น้ำมันรถ';
+    let selectedPayer = 'พี';
+    let selectedSplit = 'หาร 2 (คนละครึ่ง)';
+    let currentExpenseCoords = null;
 
     // Helpers to clean up Google Sheets Date/Time formats
     function formatTripDate(val) {
@@ -348,7 +511,6 @@
 
     // Load from LocalStorage or Vercel API (/api/trip)
     async function initData() {
-      // 1. Try reading from offline cache first (Instant UI render)
       const cached = localStorage.getItem('NAN_TRIP_DATA_2026');
       if (cached) {
         try {
@@ -359,7 +521,6 @@
         }
       }
 
-      // 2. Fetch fresh data from Vercel API / Google Sheet
       try {
         const res = await fetch('/api/trip');
         if (res.ok) {
@@ -375,8 +536,7 @@
       }
 
       if (!tripData) {
-        // Fallback default
-        tripData = { itinerary: [], accommodations: [], checklist: [] };
+        tripData = { itinerary: [], accommodations: [], checklist: [], expenses: [] };
       }
 
       renderAll();
@@ -431,7 +591,6 @@
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const straightKm = R * c;
 
-      // ปรับสัมประสิทธิ์ทางเขา 1.35x สำหรับโค้งน่าน
       const roadKm = Math.round(straightKm * 1.35 * 10) / 10;
       const hours = roadKm / 45;
       const mins = Math.round(hours * 60);
@@ -484,7 +643,6 @@
         items[currentTargetIndex].สถานะ = 'ถึงแล้ว';
         saveLocalData();
         
-        // Sync via Vercel API
         fetch('/api/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -555,38 +713,48 @@
         const formattedTime = formatTripTime(item.เวลา);
 
         return `
-          <div onclick="setTargetStop(${originalIndex})" class="cursor-pointer transition-all ${isCurrentTarget ? 'ring-2 ring-vibrantRed bg-white shadow-soft' : 'bg-white/90 hover:bg-white'} rounded-nested p-4 border border-grayGreen/25 flex items-start gap-3 relative overflow-hidden">
+          <div onclick="setTargetStop(${originalIndex})" class="cursor-pointer transition-all ${isCurrentTarget ? 'ring-2 ring-vibrantRed bg-white shadow-soft' : 'bg-white/90 hover:bg-white'} rounded-nested p-4 border border-grayGreen/25 flex flex-col gap-2 relative overflow-hidden">
             ${isCurrentTarget ? `<div class="absolute top-0 right-0 bg-vibrantRed text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-bl-xl tracking-wider">กำลังไป</div>` : ''}
             
-            <div class="mt-0.5">
-              <span class="w-8 h-8 rounded-full ${isChecked ? 'bg-emerald-500 text-white' : (isCurrentTarget ? 'bg-vibrantRed text-white' : 'bg-grayGreen/20 text-charcoal')} flex items-center justify-center font-black text-xs">
-                ${isChecked ? '<i data-lucide="check" class="w-4 h-4"></i>' : (originalIndex + 1)}
-              </span>
-            </div>
-
-            <div class="flex-1 min-w-0 pr-6">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 bg-offWhite px-2 py-0.5 rounded-md">
-                  ${formattedTime}
-                </span>
-                <span class="text-[10px] font-bold text-grayGreen">
-                  ${formattedDate ? formattedDate.replace('2026-', '') : ''}
+            <div class="flex items-start gap-3">
+              <div class="mt-0.5">
+                <span class="w-8 h-8 rounded-full ${isChecked ? 'bg-emerald-500 text-white' : (isCurrentTarget ? 'bg-vibrantRed text-white' : 'bg-grayGreen/20 text-charcoal')} flex items-center justify-center font-black text-xs">
+                  ${isChecked ? '<i data-lucide="check" class="w-4 h-4"></i>' : (originalIndex + 1)}
                 </span>
               </div>
-              <h4 class="text-base font-black text-charcoal leading-snug truncate">${item.กิจกรรม_สถานที่}</h4>
-              ${item.ที่อยู่_หมายเหตุ ? `<p class="text-xs text-charcoal/70 line-clamp-1 mt-0.5">${item.ที่อยู่_หมายเหตุ}</p>` : ''}
+
+              <div class="flex-1 min-w-0 pr-6">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-charcoal/60 bg-offWhite px-2 py-0.5 rounded-md">
+                    ${formattedTime}
+                  </span>
+                  <span class="text-[10px] font-bold text-grayGreen">
+                    ${formattedDate ? formattedDate.replace('2026-', '') : ''}
+                  </span>
+                </div>
+                <h4 class="text-base font-black text-charcoal leading-snug truncate">${item.กิจกรรม_สถานที่}</h4>
+                ${item.ที่อยู่_หมายเหตุ ? `<p class="text-xs text-charcoal/70 line-clamp-1 mt-0.5">${item.ที่อยู่_หมายเหตุ}</p>` : ''}
+              </div>
+
+              <div class="self-start">
+                ${item.map ? `
+                  <a href="${item.map}" target="_blank" onclick="event.stopPropagation()" class="w-9 h-9 rounded-full bg-offWhite hover:bg-grayGreen/30 border border-grayGreen/30 flex items-center justify-center text-charcoal transition-all">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-vibrantRed"></i>
+                  </a>
+                ` : `
+                  <span class="w-9 h-9 rounded-full bg-offWhite/50 flex items-center justify-center text-charcoal/30">
+                    <i data-lucide="compass" class="w-4 h-4"></i>
+                  </span>
+                `}
+              </div>
             </div>
 
-            <div class="self-center">
-              ${item.map ? `
-                <a href="${item.map}" target="_blank" onclick="event.stopPropagation()" class="w-9 h-9 rounded-full bg-offWhite hover:bg-grayGreen/30 border border-grayGreen/30 flex items-center justify-center text-charcoal transition-all">
-                  <i data-lucide="map-pin" class="w-4 h-4 text-vibrantRed"></i>
-                </a>
-              ` : `
-                <span class="w-9 h-9 rounded-full bg-offWhite/50 flex items-center justify-center text-charcoal/30">
-                  <i data-lucide="compass" class="w-4 h-4"></i>
-                </span>
-              `}
+            <!-- Quick Add Expense button for this stop -->
+            <div class="pt-2 border-t border-grayGreen/15 flex justify-end">
+              <button onclick="event.stopPropagation(); openExpenseModalForStop('${item.กิจกรรม_สถานที่}', ${item.lat || 'null'}, ${item.lng || 'null'})" class="text-[11px] font-extrabold text-charcoal/80 hover:text-vibrantRed bg-offWhite/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-grayGreen/25 transition-all">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-vibrantRed"></i>
+                <span>บันทึกจ่ายจุดนี้</span>
+              </button>
             </div>
           </div>
         `;
@@ -595,6 +763,7 @@
       lucide.createIcons();
     }
 
+    // Render Accommodations
     function renderAccommodations() {
       const container = document.getElementById('accommodationsContainer');
       const items = tripData?.accommodations || [];
@@ -638,6 +807,7 @@
       lucide.createIcons();
     }
 
+    // Render Checklist
     function renderChecklist() {
       const container = document.getElementById('checklistContainer');
       const items = tripData?.checklist || [];
@@ -674,6 +844,317 @@
       lucide.createIcons();
     }
 
+    // ==========================================
+    // EXPENSE MANAGEMENT & SETTLEMENT LOGIC
+    // ==========================================
+
+    function renderExpenses() {
+      const expenses = tripData?.expenses || [];
+      const listContainer = document.getElementById('expenseListContainer');
+      const countBadge = document.getElementById('expenseCountBadge');
+
+      countBadge.innerText = `${expenses.length} รายการ`;
+
+      let totalAmount = 0;
+      let peePaid = 0;
+      let nursePaid = 0;
+      let peeShouldPay = 0;
+      let nurseShouldPay = 0;
+      const catTotals = {};
+
+      expenses.forEach(exp => {
+        const amt = Number(exp.จำนวนเงิน) || 0;
+        totalAmount += amt;
+
+        // Payer
+        if (exp.ผู้จ่าย === 'พี') peePaid += amt;
+        if (exp.ผู้จ่าย === 'เนิร์ส') nursePaid += amt;
+
+        // Split logic
+        if (exp.การหาร === 'หาร 2 (คนละครึ่ง)') {
+          peeShouldPay += amt / 2;
+          nurseShouldPay += amt / 2;
+        } else if (exp.การหาร === 'พีจ่ายคนเดียว') {
+          peeShouldPay += amt;
+        } else if (exp.การหาร === 'เนิร์สจ่ายคนเดียว') {
+          nurseShouldPay += amt;
+        }
+
+        // Category breakdown
+        const cat = exp.หมวดหมู่ || 'อื่นๆ';
+        catTotals[cat] = (catTotals[cat] || 0) + amt;
+      });
+
+      // Update Header Metrics
+      document.getElementById('expTotalAmount').innerText = `฿${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('expPeeTotal').innerText = `฿${peePaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('expNurseTotal').innerText = `฿${nursePaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+      // Calculate Settlement Balance
+      // netBalance = peePaid - peeShouldPay. (Positive: Nurse owes Pee. Negative: Pee owes Nurse)
+      const balance = peePaid - peeShouldPay;
+      const settlementText = document.getElementById('settlementText');
+      const settlementSub = document.getElementById('settlementSub');
+      const settlementBox = document.getElementById('settlementBox');
+
+      if (Math.abs(balance) < 0.5) {
+        settlementText.innerText = 'ยอดเงินลงตัวพอดี 🎉';
+        settlementSub.innerText = 'ทั้งสองฝ่ายจ่ายตามสัดส่วนเท่ากัน';
+        settlementBox.className = 'bg-white/10 border border-grayGreen/20 rounded-nested p-4 mb-4 backdrop-blur-sm';
+      } else if (balance > 0) {
+        settlementText.innerHTML = `เนิร์ส โอนให้ พี <span class="text-vibrantRed">฿${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`;
+        settlementSub.innerText = `พีสำรองจ่ายไปมากกว่าส่วนที่ต้องรับผิดชอบ`;
+        settlementBox.className = 'bg-white/15 border border-vibrantRed/40 rounded-nested p-4 mb-4 backdrop-blur-sm';
+      } else {
+        const oweAmt = Math.abs(balance);
+        settlementText.innerHTML = `พี โอนให้ เนิร์ส <span class="text-emerald-400">฿${oweAmt.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`;
+        settlementSub.innerText = `เนิร์สสำรองจ่ายไปมากกว่าส่วนที่ต้องรับผิดชอบ`;
+        settlementBox.className = 'bg-white/15 border border-emerald-400/40 rounded-nested p-4 mb-4 backdrop-blur-sm';
+      }
+
+      // Render Category Breakdown Chips
+      const catGrid = document.getElementById('categorySummaryGrid');
+      const standardCats = ['⛽ น้ำมันรถ', '🍜 อาหาร/คาเฟ่', '🏨 ที่พัก', '🎟️ ค่าเข้า/อุทยาน', '🛍️ ซื้อของ/แคมป์', '🔧 อื่นๆ'];
+      catGrid.innerHTML = standardCats.map(cat => {
+        const val = catTotals[cat] || 0;
+        return `
+          <div class="bg-white rounded-nested p-2.5 border border-grayGreen/25 text-center">
+            <span class="text-[10px] font-bold text-charcoal/70 block truncate">${cat.split(' ')[0]} ${cat.split(' ')[1] || ''}</span>
+            <span class="text-xs font-black text-charcoal">฿${Math.round(val).toLocaleString()}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Render History List
+      if (expenses.length === 0) {
+        listContainer.innerHTML = `
+          <div class="bg-white rounded-nested p-8 text-center text-charcoal/60 border border-grayGreen/20">
+            <i data-lucide="receipt" class="w-8 h-8 mx-auto mb-2 text-charcoal/30"></i>
+            <p class="font-bold text-sm">ยังไม่มีรายการค่าใช้จ่าย</p>
+            <p class="text-xs text-charcoal/50 mt-1">กดปุ่ม "บันทึกจ่าย" ด้านบนเพื่อเริ่มบันทึกเงินพร้อมพิกัด GPS</p>
+          </div>
+        `;
+      } else {
+        listContainer.innerHTML = [...expenses].reverse().map((exp) => {
+          const isPee = exp.ผู้จ่าย === 'พี';
+          return `
+            <div class="bg-white rounded-nested p-4 shadow-soft border border-grayGreen/25 space-y-2">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isPee ? 'bg-charcoal text-white' : 'bg-pink-100 text-pink-800 border border-pink-300'}">
+                      ${exp.ผู้จ่าย} จ่าย
+                    </span>
+                    <span class="text-[9px] font-bold text-charcoal/60 bg-offWhite px-2 py-0.5 rounded-full">
+                      ${exp.การหาร}
+                    </span>
+                    <span class="text-[9px] font-bold text-grayGreen">
+                      ${exp.หมวดหมู่}
+                    </span>
+                  </div>
+                  <h4 class="text-base font-black text-charcoal leading-snug">${exp.รายการ}</h4>
+                </div>
+
+                <div class="text-right">
+                  <span class="text-lg font-black text-vibrantRed block">฿${Number(exp.จำนวนเงิน).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+
+              <!-- Location & Timestamp -->
+              <div class="pt-2 border-t border-grayGreen/15 flex items-center justify-between text-xs text-charcoal/70">
+                <div class="flex items-center gap-1.5 truncate max-w-[240px]">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-vibrantRed shrink-0"></i>
+                  <span class="truncate font-bold text-[11px]">${exp.สถานที่ || 'ไม่ระบุสถานที่'}</span>
+                </div>
+
+                ${exp.map_url ? `
+                  <a href="${exp.map_url}" target="_blank" class="text-[10px] font-extrabold text-vibrantRed flex items-center gap-0.5 hover:underline shrink-0">
+                    <span>ดูพิกัด</span>
+                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    // Modal Control
+    function openExpenseModal() {
+      const modal = document.getElementById('expenseModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.querySelector('.transform').classList.remove('translate-y-8');
+      refreshExpenseGps();
+    }
+
+    function openExpenseModalForStop(stopName, lat, lng) {
+      openExpenseModal();
+      document.getElementById('expInputTitle').value = stopName ? `แวะ ${stopName}` : '';
+      document.getElementById('expInputLocation').value = stopName || '';
+      if (lat && lng) {
+        currentExpenseCoords = { lat, lng };
+        document.getElementById('expGpsCoord').innerText = `GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        document.getElementById('expGpsNearStop').innerText = `(จุดแวะในทริป)`;
+      }
+    }
+
+    function closeExpenseModal() {
+      const modal = document.getElementById('expenseModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.querySelector('.transform').classList.add('translate-y-8');
+    }
+
+    function selectExpCategory(cat) {
+      selectedCategory = cat;
+      document.querySelectorAll('#expCategorySelector .cat-pill').forEach(btn => {
+        btn.className = 'cat-pill py-2 px-2 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30';
+      });
+      event.target.className = 'cat-pill active py-2 px-2 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal';
+    }
+
+    function selectPayer(payer) {
+      selectedPayer = payer;
+      const btnPee = document.getElementById('payerPee');
+      const btnNurse = document.getElementById('payerNurse');
+      if (payer === 'พี') {
+        btnPee.className = 'py-2.5 rounded-nested font-black text-sm border transition-all bg-vibrantRed text-white border-vibrantRed';
+        btnNurse.className = 'py-2.5 rounded-nested font-black text-sm border transition-all bg-white text-charcoal border-grayGreen/30';
+      } else {
+        btnNurse.className = 'py-2.5 rounded-nested font-black text-sm border transition-all bg-vibrantRed text-white border-vibrantRed';
+        btnPee.className = 'py-2.5 rounded-nested font-black text-sm border transition-all bg-white text-charcoal border-grayGreen/30';
+      }
+    }
+
+    function selectSplit(split) {
+      selectedSplit = split;
+      ['splitHalf', 'splitPee', 'splitNurse'].forEach(id => {
+        document.getElementById(id).className = 'py-2 px-1 rounded-nested text-xs font-black border transition-all bg-white text-charcoal border-grayGreen/30';
+      });
+      if (split === 'หาร 2 (คนละครึ่ง)') {
+        document.getElementById('splitHalf').className = 'py-2 px-1 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal';
+      } else if (split === 'พีจ่ายคนเดียว') {
+        document.getElementById('splitPee').className = 'py-2 px-1 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal';
+      } else {
+        document.getElementById('splitNurse').className = 'py-2 px-1 rounded-nested text-xs font-black border transition-all bg-charcoal text-white border-charcoal';
+      }
+    }
+
+    // Refresh and auto-detect GPS for Expense form
+    function refreshExpenseGps() {
+      const coordLabel = document.getElementById('expGpsCoord');
+      const nearLabel = document.getElementById('expGpsNearStop');
+      const locInput = document.getElementById('expInputLocation');
+
+      if (userLocation) {
+        currentExpenseCoords = { lat: userLocation.lat, lng: userLocation.lng };
+        coordLabel.innerText = `GPS: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+
+        // Check nearest itinerary point
+        let nearest = null;
+        let minDist = 9999;
+        (tripData?.itinerary || []).forEach(it => {
+          if (it.lat && it.lng) {
+            const d = calculateMotoDistanceAndEta(userLocation.lat, userLocation.lng, it.lat, it.lng);
+            if (typeof d.km === 'number' && d.km < minDist) {
+              minDist = d.km;
+              nearest = it;
+            }
+          }
+        });
+
+        if (nearest && minDist <= 2.5) {
+          nearLabel.innerText = `(ใกล้ ${nearest.กิจกรรม_สถานที่})`;
+          if (!locInput.value) {
+            locInput.value = nearest.กิจกรรม_สถานที่;
+          }
+        } else {
+          nearLabel.innerText = '';
+          if (!locInput.value) {
+            locInput.value = `พิกัด ${userLocation.lat.toFixed(3)}, ${userLocation.lng.toFixed(3)}`;
+          }
+        }
+      } else {
+        coordLabel.innerText = 'GPS: กำลังค้นหาตำแหน่ง...';
+      }
+    }
+
+    // Handle Expense Form Submit
+    async function handleExpenseSubmit(e) {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('expInputAmount').value);
+      const title = document.getElementById('expInputTitle').value.trim();
+      const locationName = document.getElementById('expInputLocation').value.trim();
+
+      if (!amount || isNaN(amount)) {
+        alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
+        return;
+      }
+
+      const saveBtn = document.getElementById('btnSaveExpense');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'กำลังบันทึกลง Sheet...';
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      const newExpense = {
+        timestamp: dateStr,
+        วันที่_เวลา: dateStr,
+        title: title,
+        รายการ: title,
+        category: selectedCategory,
+        หมวดหมู่: selectedCategory,
+        amount: amount,
+        จำนวนเงิน: amount,
+        payer: selectedPayer,
+        ผู้จ่าย: selectedPayer,
+        splitType: selectedSplit,
+        การหาร: selectedSplit,
+        locationName: locationName,
+        สถานที่: locationName,
+        lat: currentExpenseCoords?.lat || '',
+        lng: currentExpenseCoords?.lng || '',
+        mapUrl: (currentExpenseCoords?.lat && currentExpenseCoords?.lng) 
+          ? `https://www.google.com/maps?q=${currentExpenseCoords.lat},${currentExpenseCoords.lng}` 
+          : '',
+        map_url: (currentExpenseCoords?.lat && currentExpenseCoords?.lng) 
+          ? `https://www.google.com/maps?q=${currentExpenseCoords.lat},${currentExpenseCoords.lng}` 
+          : ''
+      };
+
+      // 1. Optimistic Update (Save locally immediately)
+      if (!tripData.expenses) tripData.expenses = [];
+      tripData.expenses.push(newExpense);
+      saveLocalData();
+      renderExpenses();
+      closeExpenseModal();
+      document.getElementById('expenseForm').reset();
+      showToast('บันทึกค่าใช้จ่ายแล้ว!');
+
+      // 2. Sync to Server / Google Sheet
+      try {
+        await fetch('/api/expense', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'addExpense',
+            expense: newExpense
+          })
+        });
+        showToast('ซิงก์ข้อมูลลง Google Sheet แล้ว');
+      } catch (err) {
+        console.warn('Expense sync error', err);
+        showToast('บันทึกในเครื่องแล้ว (รอซิงก์เมื่อต่อเน็ต)');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i><span>บันทึกค่าใช้จ่ายลง Google Sheet</span>';
+        lucide.createIcons();
+      }
+    }
+
     function toggleChecklist(index) {
       const item = tripData?.checklist[index];
       if (!item) return;
@@ -682,7 +1163,6 @@
       saveLocalData();
       renderChecklist();
 
-      // Sync via Vercel API
       fetch('/api/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -717,32 +1197,40 @@
       localStorage.setItem('NAN_TRIP_DATA_2026', JSON.stringify(tripData));
     }
 
+    // Tab Switcher (4 Tabs)
     function switchTab(tabId) {
       const tabItinerary = document.getElementById('tabItinerary');
+      const tabExpenses = document.getElementById('tabExpenses');
       const tabAccommodations = document.getElementById('tabAccommodations');
       const tabChecklist = document.getElementById('tabChecklist');
 
       const btnItinerary = document.getElementById('navBtnItinerary');
+      const btnExpenses = document.getElementById('navBtnExpenses');
       const btnAccommodations = document.getElementById('navBtnAccommodations');
       const btnChecklist = document.getElementById('navBtnChecklist');
 
       tabItinerary.classList.add('hidden');
+      tabExpenses.classList.add('hidden');
       tabAccommodations.classList.add('hidden');
       tabChecklist.classList.add('hidden');
 
-      [btnItinerary, btnAccommodations, btnChecklist].forEach(btn => {
-        btn.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all text-grayGreen hover:text-white';
+      [btnItinerary, btnExpenses, btnAccommodations, btnChecklist].forEach(btn => {
+        btn.className = 'flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all text-grayGreen hover:text-white';
       });
 
       if (tabId === 'itinerary') {
         tabItinerary.classList.remove('hidden');
-        btnItinerary.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+        btnItinerary.className = 'flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all bg-vibrantRed text-white shadow-sm';
+      } else if (tabId === 'expenses') {
+        tabExpenses.classList.remove('hidden');
+        btnExpenses.className = 'flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all bg-vibrantRed text-white shadow-sm';
+        renderExpenses();
       } else if (tabId === 'accommodations') {
         tabAccommodations.classList.remove('hidden');
-        btnAccommodations.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+        btnAccommodations.className = 'flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all bg-vibrantRed text-white shadow-sm';
       } else if (tabId === 'checklist') {
         tabChecklist.classList.remove('hidden');
-        btnChecklist.className = 'flex-1 py-2.5 px-3 rounded-full flex flex-col items-center justify-center gap-1 transition-all bg-vibrantRed text-white shadow-sm';
+        btnChecklist.className = 'flex-1 py-2 px-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all bg-vibrantRed text-white shadow-sm';
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -763,6 +1251,7 @@
 
     function renderAll() {
       renderItinerary();
+      renderExpenses();
       renderAccommodations();
       renderChecklist();
       updateGpsCalculations();

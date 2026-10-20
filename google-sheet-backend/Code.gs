@@ -79,7 +79,15 @@ function doPost(e) {
     } else if (action === 'updateItinerary') {
       const sheet = ss.getSheetByName('Itinerary');
       if (sheet && contents.rowIndex) {
-        sheet.getRange(contents.rowIndex, 6).setValue(contents.status);
+        sheet.getRange(contents.rowIndex, 6).setValue(contents.status || '');
+      }
+      return ContentService.createTextOutput(JSON.stringify({ success: true, action: action }))
+        .setMimeType(ContentService.MimeType.JSON);
+
+    } else if (action === 'resetItinerary') {
+      const sheet = ss.getSheetByName('Itinerary');
+      if (sheet && sheet.getLastRow() > 1) {
+        sheet.getRange(2, 6, sheet.getLastRow() - 1, 1).clearContent();
       }
       return ContentService.createTextOutput(JSON.stringify({ success: true, action: action }))
         .setMimeType(ContentService.MimeType.JSON);

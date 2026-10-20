@@ -160,13 +160,19 @@
 
           <!-- Motorcycle Mode Controls & Actions -->
           <div class="flex items-center gap-2">
-            <button id="btnOpenMaps" onclick="openCurrentTargetMap()" class="flex-1 bg-vibrantRed hover:bg-[#a60010] active:scale-[0.98] transition-all text-white py-3.5 px-4 rounded-nested font-extrabold text-sm flex items-center justify-center gap-2 shadow-float">
+            <button id="btnOpenMaps" onclick="openCurrentTargetMap()" class="flex-1 bg-vibrantRed hover:bg-[#a60010] active:scale-[0.98] transition-all text-white py-3.5 px-3 rounded-nested font-extrabold text-sm flex items-center justify-center gap-1.5 shadow-float">
               <i data-lucide="map-pin" class="w-4 h-4"></i>
-              <span>นำทาง Google Maps</span>
+              <span>นำทาง Maps</span>
             </button>
 
-            <button id="btnCheckin" onclick="checkinCurrentStop()" class="bg-white/15 hover:bg-white/25 active:scale-[0.98] transition-all border border-grayGreen/30 text-white p-3.5 rounded-nested font-extrabold text-sm flex items-center justify-center" title="เช็คอิน / ข้ามไปจุดถัดไป">
-              <i data-lucide="check" class="w-5 h-5 text-grayGreen"></i>
+            <!-- Undo / Previous Stop Button -->
+            <button id="btnUndoCheckin" onclick="undoCurrentStop()" class="bg-white/15 hover:bg-white/25 active:scale-[0.98] transition-all border border-grayGreen/30 text-white p-3.5 rounded-nested font-extrabold text-sm flex items-center justify-center" title="ย้อนกลับจุดก่อนหน้า / ยกเลิกติ๊กถูก">
+              <i data-lucide="rotate-ccw" class="w-5 h-5 text-grayGreen"></i>
+            </button>
+
+            <!-- Check-in / Next Stop Button -->
+            <button id="btnCheckin" onclick="checkinCurrentStop()" class="bg-white/15 hover:bg-white/25 active:scale-[0.98] transition-all border border-grayGreen/30 text-white p-3.5 rounded-nested font-extrabold text-sm flex items-center justify-center" title="เช็คอินถึงแล้ว / สลับไปจุดถัดไป">
+              <i data-lucide="check" id="checkinIcon" class="w-5 h-5 text-grayGreen"></i>
             </button>
           </div>
         </div>
@@ -197,10 +203,16 @@
         </div>
       </div>
 
-      <!-- Itinerary List Header -->
+      <!-- Itinerary List Header with Reset Button -->
       <div class="flex items-center justify-between px-1 pt-2">
-        <h3 class="text-xl font-black text-charcoal">แผนการเดินทาง</h3>
-        <span id="itineraryCount" class="text-xs font-bold text-charcoal/60 bg-white border border-grayGreen/30 px-2.5 py-0.5 rounded-full">36 จุด</span>
+        <div class="flex items-center gap-2">
+          <h3 class="text-xl font-black text-charcoal">แผนการเดินทาง</h3>
+          <span id="itineraryCount" class="text-xs font-bold text-charcoal/60 bg-white border border-grayGreen/30 px-2 py-0.5 rounded-full">36 จุด</span>
+        </div>
+        <button onclick="resetItineraryCheckins()" class="text-xs font-bold text-charcoal/70 hover:text-vibrantRed bg-white hover:bg-rose-50 border border-grayGreen/30 px-2.5 py-1 rounded-full flex items-center gap-1 transition-all" title="รีเซ็ตสถานะเช็คอินทั้งหมดเพื่อเริ่มใหม่">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-vibrantRed"></i>
+          <span>รีเซ็ตจุด</span>
+        </button>
       </div>
 
       <!-- Timeline Items Container -->
@@ -643,6 +655,18 @@
         document.getElementById('targetDistance').innerText = '--';
         document.getElementById('targetEta').innerText = '--';
       }
+
+      // Update checkin button icon state
+      const checkIcon = document.getElementById('checkinIcon');
+      if (checkIcon) {
+        if (target.สถานะ === 'ถึงแล้ว') {
+          checkIcon.className = 'w-5 h-5 text-emerald-400';
+          document.getElementById('btnCheckin').title = 'คลิกเพื่อยกเลิกติ๊กถูกจุดนี้';
+        } else {
+          checkIcon.className = 'w-5 h-5 text-grayGreen';
+          document.getElementById('btnCheckin').title = 'เช็คอินถึงแล้ว / สลับไปจุดถัดไป';
+        }
+      }
     }
 
     function setTargetStop(index) {
@@ -652,38 +676,150 @@
       showToast('เปลี่ยนจุดหมายนำทางแล้ว');
     }
 
+    // Checkin / Advance to next stop (Supports toggle if already checked)
     async function checkinCurrentStop() {
       const items = tripData?.itinerary || [];
-      if (currentTargetIndex < items.length - 1) {
-        items[currentTargetIndex].สถานะ = 'ถึงแล้ว';
+      if (items.length === 0) return;
+
+      const current = items[currentTargetIndex];
+      if (current.สถานะ === 'ถึงแล้ว') {
+        // Toggle back to unchecked
+        current.สถานะ = '';
         saveLocalData();
-        
-        const payload = {
-          action: 'updateItinerary',
-          rowIndex: items[currentTargetIndex]._rowIndex || (currentTargetIndex + 2),
-          status: 'ถึงแล้ว'
-        };
-
-        fetch('/api/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }).catch(() => {
-          fetch(GAS_DIRECT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-          }).catch(e => console.warn('Sync offline', e));
-        });
-
-        currentTargetIndex++;
+        syncItineraryStatus(currentTargetIndex, '');
         updateGpsCalculations();
         renderItinerary();
-        showToast('เช็คอินแล้ว! สลับไปยังจุดถัดไป');
+        showToast('ยกเลิกเช็คอินจุดนี้แล้ว');
+        return;
+      }
+
+      // Mark as arrived
+      current.สถานะ = 'ถึงแล้ว';
+      saveLocalData();
+      syncItineraryStatus(currentTargetIndex, 'ถึงแล้ว');
+
+      if (currentTargetIndex < items.length - 1) {
+        currentTargetIndex++;
+        showToast('เช็คอินแล้ว! สลับไปจุดถัดไป');
       } else {
         showToast('ถึงจุดหมายสุดท้ายของทริปแล้ว!');
       }
+
+      updateGpsCalculations();
+      renderItinerary();
+    }
+
+    // Undo checkin & return to previous stop
+    async function undoCurrentStop() {
+      const items = tripData?.itinerary || [];
+      if (items.length === 0) return;
+
+      // Case 1: Current stop is already checked -> just uncheck current stop
+      if (items[currentTargetIndex].สถานะ === 'ถึงแล้ว') {
+        items[currentTargetIndex].สถานะ = '';
+        saveLocalData();
+        syncItineraryStatus(currentTargetIndex, '');
+        updateGpsCalculations();
+        renderItinerary();
+        showToast('ยกเลิกติ๊กถูกจุดปัจจุบันแล้ว');
+        return;
+      }
+
+      // Case 2: Current stop is not checked, go back to previous stop
+      if (currentTargetIndex > 0) {
+        currentTargetIndex--;
+        items[currentTargetIndex].สถานะ = '';
+        saveLocalData();
+        syncItineraryStatus(currentTargetIndex, '');
+        updateGpsCalculations();
+        renderItinerary();
+        showToast('ย้อนกลับไปยังจุดก่อนหน้าแล้ว');
+      } else {
+        showToast('อยู่ที่จุดเริ่มต้นแล้ว');
+      }
+    }
+
+    // Toggle checkin on specific timeline stop
+    async function toggleItineraryCheckin(index) {
+      const items = tripData?.itinerary || [];
+      const item = items[index];
+      if (!item) return;
+
+      const isChecked = item.สถานะ === 'ถึงแล้ว';
+      item.สถานะ = isChecked ? '' : 'ถึงแล้ว';
+      saveLocalData();
+
+      syncItineraryStatus(index, item.สถานะ);
+
+      updateGpsCalculations();
+      renderItinerary();
+
+      if (isChecked) {
+        showToast(`ยกเลิกเช็คอิน: ${item.กิจกรรม_สถานที่}`);
+      } else {
+        showToast(`เช็คอินแล้ว: ${item.กิจกรรม_สถานที่}`);
+      }
+    }
+
+    // Helper: Sync itinerary status to backend
+    function syncItineraryStatus(index, status) {
+      const items = tripData?.itinerary || [];
+      const item = items[index];
+      if (!item) return;
+
+      const payload = {
+        action: 'updateItinerary',
+        rowIndex: item._rowIndex || (index + 2),
+        status: status || ''
+      };
+
+      fetch('/api/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {
+        fetch(GAS_DIRECT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        }).catch(e => console.warn('Sync offline', e));
+      });
+    }
+
+    // Reset all itinerary check-ins
+    async function resetItineraryCheckins() {
+      const items = tripData?.itinerary || [];
+      if (items.length === 0) return;
+
+      if (!confirm('ต้องการรีเซ็ตสถานะเช็คอินทุกจุดเพื่อเริ่มเดินทางใหม่ใช่หรือไม่?')) {
+        return;
+      }
+
+      items.forEach(it => {
+        it.สถานะ = '';
+      });
+      currentTargetIndex = 0;
+      saveLocalData();
+
+      // Sync reset to Google Sheet
+      const payload = { action: 'resetItinerary' };
+      fetch('/api/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {
+        fetch(GAS_DIRECT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        }).catch(e => console.warn('Sync offline', e));
+      });
+
+      updateGpsCalculations();
+      renderItinerary();
+      showToast('รีเซ็ตสถานะการเดินทางทั้งหมดแล้ว');
     }
 
     function openCurrentTargetMap() {
@@ -741,8 +877,8 @@
             ${isCurrentTarget ? `<div class="absolute top-0 right-0 bg-vibrantRed text-white text-[9px] font-black uppercase px-2.5 py-0.5 rounded-bl-xl tracking-wider">กำลังไป</div>` : ''}
             
             <div class="flex items-start gap-3">
-              <div class="mt-0.5">
-                <span class="w-8 h-8 rounded-full ${isChecked ? 'bg-emerald-500 text-white' : (isCurrentTarget ? 'bg-vibrantRed text-white' : 'bg-grayGreen/20 text-charcoal')} flex items-center justify-center font-black text-xs">
+              <div class="mt-0.5" onclick="event.stopPropagation(); toggleItineraryCheckin(${originalIndex})" title="${isChecked ? 'คลิกเพื่อยกเลิกติ๊กถูก (ยังไม่ถึง)' : 'คลิกเพื่อติ๊กถูกว่าถึงแล้ว'}">
+                <span class="w-8 h-8 rounded-full cursor-pointer hover:scale-110 active:scale-95 transition-all ${isChecked ? 'bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-300' : (isCurrentTarget ? 'bg-vibrantRed text-white ring-2 ring-vibrantRed/40' : 'bg-grayGreen/20 text-charcoal hover:bg-grayGreen/40')} flex items-center justify-center font-black text-xs">
                   ${isChecked ? '<i data-lucide="check" class="w-4 h-4"></i>' : (originalIndex + 1)}
                 </span>
               </div>
